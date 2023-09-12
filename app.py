@@ -107,14 +107,13 @@ def handle_follow(event):
     )
 
 
-#@app.route("/login", methods=['GET'])
-#def login():
-    #auth_url = generate_auth_url()  # Google認証ページへのURLを生成
-    #return redirect(auth_url)  # 生成したURLにリダイレクト
+@app.route("/login", methods=['GET'])
+def login():
+    auth_url = generate_auth_url()  # Google認証ページへのURLを生成
+    return redirect(auth_url)  # 生成したURLにリダイレクト
 
 
 # Google OAuth2.0のフローを開始
-@app.route('/login', methods=['GET'])
 def generate_auth_url():
     """
     Googleの認証ページへのリダイレクトURLを生成する関数。
@@ -134,7 +133,7 @@ def generate_auth_url():
             prompt='consent'
         )
         logging.debug("URL発行しました。")
-        return redirect(authorization_url)
+        return authorization_url
     except Exception as e:
         logging.error(f"Error generating the auth URL: {e}")
         return None
