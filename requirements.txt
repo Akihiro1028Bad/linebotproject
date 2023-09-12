@@ -6,3 +6,4 @@ line-bot-sdk==3.4.0
 gunicorn==21.2.0
 flask_migrate==4.0.4
 oauthlib==3.2.2
+sqlalchemy==1.4.39

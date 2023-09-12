@@ -185,8 +185,8 @@ def oauth2callback():
             user_email = userinfo.get('email')
             user_id = userinfo.get('id')
             logging.debug(f"userinfo:{userinfo}")
-            logging.debug(f"user_id:{user_email}")
-            logging.debug(f"user_mail:{user_id}")
+            logging.debug(f"user_id:{user_id}")
+            logging.debug(f"user_mail:{user_email}")
         except Exception as e:
             print(f"Error while making the request: {e}")
 

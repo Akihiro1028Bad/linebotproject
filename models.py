@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.schema import UniqueConstraint, ForeignKeyConstraint
 from datetime import datetime
 
 
@@ -17,6 +18,11 @@ class User(db.Model):
     token_expiry = db.Column(db.DateTime, nullable=True)  # トークンの有効期限
 
     events = db.relationship('Event', backref='user', lazy=True)  # Eventテーブルとのリレーション（必要であれば）
+
+    __table_args__ = (
+        UniqueConstraint('google_user_id', name='uq_google_user_id'),
+        UniqueConstraint('google_email', name='uq_google_email'),
+    )
 
     @classmethod
     def add_new_user(cls, google_user_id, google_email,
@@ -42,7 +48,8 @@ class Event(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)  # 終了時間
     location = db.Column(db.String(255), nullable=True)  # 場所
     note = db.Column(db.Text, nullable=True)  # メモ
-    reminders = db.relationship('Reminder', backref='event', lazy=True)  # Reminderテーブルとのリレーション
+    reminders = db.relationship('Reminder', backref='event', lazy=True)  # Reminderテーブルとのリレーショ
+
 
     @classmethod
     def add_new_event(cls, user_id, title, start_time, end_time, location=None, note=None):
