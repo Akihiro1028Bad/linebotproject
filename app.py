@@ -159,7 +159,8 @@ def oauth2callback():
             './secrets/credentials.json',
             scopes=['https://www.googleapis.com/auth/calendar',
                     'https://www.googleapis.com/auth/userinfo.email',
-                    'https://www.googleapis.com/auth/userinfo.profile'],
+                    'https://www.googleapis.com/auth/userinfo.profile',
+                    'openid'],
             state=state
         )
         logging.debug("クライアントの情報を取得しました")
