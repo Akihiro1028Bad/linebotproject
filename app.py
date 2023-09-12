@@ -41,6 +41,10 @@ migrate = Migrate(app, db)
 line_bot_api = LineBotApi(API_KEY)
 handler = WebhookHandler(LINE_SECRET)
 
+#line_bot_api = LineBotApi("zAb9OA5mG+Ns2i348QUcvDubA+2r8VCL6h67+Zfr5bkiEPt7KsfBoUxWF179I14xMyfOr8G30gik47vYkiPxmPG" +
+                          #"vqhsZdoE0KzZY734vPfmXigXBv53jPBaoKhsLtMgJl0kUYsfcCG1WKCwr2ziEVQdB04t89/1O/w1cDnyilFU")
+#handler = WebhookHandler("91ec5665693eb55ef3fab7ebe4e09b22")
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -101,8 +105,6 @@ def handle_follow(event):
         event.reply_token,
         TextSendMessage(text=f"Google認証を行うには、以下のリンクをクリックしてください: {auth_url}")
     )
-
-
 @app.route("/login", methods=['GET'])
 def login():
     auth_url = generate_auth_url()  # Google認証ページへのURLを生成
@@ -120,8 +122,7 @@ def generate_auth_url():
         flow = InstalledAppFlow.from_client_secrets_file('secrets/credentials.json',
                                                          scopes=['https://www.googleapis.com/auth/calendar'])
 
-        # flow.redirect_uri = 'https://line-bot-oniisan-test-d81a1f540a61.herokuapp.com/oauth2callback'
-        flow.redirect_uri = 'https://line-bot-oniisan-test-d81a1f540a61.herokuapp.com'
+        flow.redirect_uri = 'https://line-bot-oniisan-test-d81a1f540a61.herokuapp.com/oauth2callback'
         authorization_url, state = flow.authorization_url(
             access_type='offline',
             include_granted_scopes='true',
@@ -223,8 +224,6 @@ def renew_token(refresh_token):
 
 
 if __name__ == '__main__':
-    api_key = os.environ.get('API_KEY')
-    print(api_key)
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
     with app.app_context():  # アプリケーションコンテキストを設定
