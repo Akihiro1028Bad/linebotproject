@@ -105,6 +105,8 @@ def handle_follow(event):
         event.reply_token,
         TextSendMessage(text=f"Google認証を行うには、以下のリンクをクリックしてください: {auth_url}")
     )
+
+
 @app.route("/login", methods=['GET'])
 def login():
     auth_url = generate_auth_url()  # Google認証ページへのURLを生成
@@ -128,6 +130,7 @@ def generate_auth_url():
             include_granted_scopes='true',
             prompt='consent'
         )
+        logging.debug("URL発行しました。")
         return authorization_url
     except Exception as e:
         logging.error(f"Error generating the auth URL: {e}")
@@ -146,6 +149,7 @@ def oauth2callback():
     user_email = None
     user_id = None
     try:
+        logging.debug("リダイレクトするメソッドのtry処理に入りました")
         state = request.args.get('state', '')
 
         flow = InstalledAppFlow.from_client_secrets_file(
@@ -153,7 +157,9 @@ def oauth2callback():
             scopes=['https://www.googleapis.com/auth/calendar'],
             state=state
         )
+        logging.debug("クライアントの情報を取得しました")
         flow.redirect_uri = url_for('oauth2callback', _external=True)
+        logging.debug("URIを受け取りました")
         authorization_response = request.url
         flow.fetch_token(authorization_response=authorization_response)
 
@@ -187,7 +193,7 @@ def oauth2callback():
             logging.error(f"Error while making a request to the Google API: {e}")
             return "Error making a request to Google API.", 500
     except Exception as e:
-        logging.error("Unexpected error:", e)
+        logging.error(f"Unexpected error:{e}")
         return "An unexpected error occurred.", 500
 
     # トークン更新後、またはエラーが発生しなかった場合の処理
