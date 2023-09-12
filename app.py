@@ -155,7 +155,9 @@ def oauth2callback():
 
         flow = InstalledAppFlow.from_client_secrets_file(
             './secrets/credentials.json',
-            scopes=['https://www.googleapis.com/auth/calendar'],
+            scopes=['https://www.googleapis.com/auth/calendar',
+                    'https://www.googleapis.com/auth/userinfo.email',
+                    'https://www.googleapis.com/auth/userinfo.profile'],
             state=state
         )
         logging.debug("クライアントの情報を取得しました")
