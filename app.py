@@ -162,10 +162,16 @@ def oauth2callback():
         flow.redirect_uri = url_for('oauth2callback', _external=True)
         logging.debug("URIを受け取りました")
         authorization_response = request.url
+        logging.debug(f"Uauthorization_responseにURLを代入しました：URL→{authorization_response}")
         flow.fetch_token(authorization_response=authorization_response)
 
         credentials = flow.credentials
         service = build('oauth2', 'v2', credentials=credentials)
+
+        if credentials.valid:
+            logging.debug("Credentials are valid OK.")
+        else:
+            logging.error("Credentials are not valid NO.")
 
         userinfo = service.userinfo().get().execute()
         user_email = userinfo.get('email')
