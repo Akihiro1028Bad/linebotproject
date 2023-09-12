@@ -38,12 +38,12 @@ db.init_app(app)  # ここでdbオブジェクトを初期化
 migrate = Migrate(app, db)
 
 
-line_bot_api = LineBotApi(API_KEY)
-handler = WebhookHandler(LINE_SECRET)
+#line_bot_api = LineBotApi(API_KEY)
+#handler = WebhookHandler(LINE_SECRET)
 
-#line_bot_api = LineBotApi("zAb9OA5mG+Ns2i348QUcvDubA+2r8VCL6h67+Zfr5bkiEPt7KsfBoUxWF179I14xMyfOr8G30gik47vYkiPxmPG" +
-                          #"vqhsZdoE0KzZY734vPfmXigXBv53jPBaoKhsLtMgJl0kUYsfcCG1WKCwr2ziEVQdB04t89/1O/w1cDnyilFU")
-#handler = WebhookHandler("91ec5665693eb55ef3fab7ebe4e09b22")
+line_bot_api = LineBotApi("zAb9OA5mG+Ns2i348QUcvDubA+2r8VCL6h67+Zfr5bkiEPt7KsfBoUxWF179I14xMyfOr8G30gik47vYkiPxmPG" +
+                          "vqhsZdoE0KzZY734vPfmXigXBv53jPBaoKhsLtMgJl0kUYsfcCG1WKCwr2ziEVQdB04t89/1O/w1cDnyilFU")
+handler = WebhookHandler("91ec5665693eb55ef3fab7ebe4e09b22")
 
 
 @app.route("/callback", methods=['POST'])
@@ -125,6 +125,7 @@ def generate_auth_url():
                                                          scopes=['https://www.googleapis.com/auth/calendar'])
 
         flow.redirect_uri = 'https://line-bot-oniisan-test-d81a1f540a61.herokuapp.com/oauth2callback'
+        #flow.redirect_uri = 'https://d718-240b-10-2aa0-1700-d41d-508a-2051-a718.ngrok-free.app'
         authorization_url, state = flow.authorization_url(
             access_type='offline',
             include_granted_scopes='true',
@@ -164,7 +165,7 @@ def oauth2callback():
         flow.fetch_token(authorization_response=authorization_response)
 
         credentials = flow.credentials
-        service = build('calendar', 'v3', credentials=credentials)
+        service = build('oauth2', 'v2', credentials=credentials)
 
         userinfo = service.userinfo().get().execute()
         user_email = userinfo.get('email')
@@ -184,7 +185,7 @@ def oauth2callback():
                 user.google_refresh_token = new_refresh_token
                 db.session.commit()
 
-                service = build('calendar', 'v3', credentials=credentials)
+                service = build('oauth2', 'v2', credentials=credentials)
                 userinfo = service.userinfo().get().execute()
                 user_email = userinfo.get('email')
                 user_id = userinfo.get('id')
