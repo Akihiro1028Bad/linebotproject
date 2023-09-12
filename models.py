@@ -23,7 +23,7 @@ class User(db.Model):
     __table_args__ = (
         UniqueConstraint('google_user_id', name='uq_google_user_id'),
         UniqueConstraint('google_email', name='uq_google_email'),
-        UniqueConstraint('line_email', name='uq_line_email_google_email'),
+        UniqueConstraint('line_user_id', name='uq_line_email_google_email'),
     )
 
     @classmethod
