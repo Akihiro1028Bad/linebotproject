@@ -1,6 +1,6 @@
 import logging
 
-from flask import Flask
+from flask import Flask, session
 from flask_migrate import Migrate
 from flask import request, abort
 
@@ -33,6 +33,7 @@ LINE_SECRET = os.environ.get("LINE_SECRET")
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///app.db"  # SQLiteデータベースへのパス
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 変更を追跡しない設定
+app.secret_key = 'your_secret_key'  # 実際の運用時には適切なキーを設定してください
 db.init_app(app)  # ここでdbオブジェクトを初期化
 # Flask-Migrateを初期化
 migrate = Migrate(app, db)
@@ -101,6 +102,8 @@ def handle_follow(event):
     # Google認証のリンクを生成
     auth_url = generate_auth_url()
     # 生成したリンクをユーザーに送信
+
+    session['line_id'] = event.source.userId
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=f"Google認証を行うには、以下のリンクをクリックしてください: {auth_url}")
@@ -225,11 +228,11 @@ def oauth2callback():
     if not user:
         user = User.query.filter_by(google_email=user_email).first()
         if not user:
-            User.add_new_user(google_email=user_email, google_user_id=user_id)
+            User.add_new_user(google_email=user_email, google_user_id=user_id, line_id=session.get('line_id'))
 
     # ... その他のAPIを使用した処理 ...
 
-    return "Successfully authenticated and connected to Google Calendar."
+    return "Googleカレンダーとの連帯が完了しました。lineの画面に戻ってください"
 
 
 def renew_token(refresh_token):

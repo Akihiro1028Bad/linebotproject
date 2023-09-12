@@ -11,6 +11,7 @@ db = SQLAlchemy()
 # Userモデル（テーブル）を定義
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # 主キー
+    line_user_id = db.Column(db.String(128), unique=True, nullable=False)  # lineのユーザーID
     google_user_id = db.Column(db.String(128), unique=True, nullable=False)  # GoogleのユーザーID
     google_email = db.Column(db.String(255), unique=True, nullable=False)  # Googleのメールアドレス
     google_access_token = db.Column(db.String(255), nullable=True)  # Googleのアクセストークン
@@ -22,6 +23,7 @@ class User(db.Model):
     __table_args__ = (
         UniqueConstraint('google_user_id', name='uq_google_user_id'),
         UniqueConstraint('google_email', name='uq_google_email'),
+        UniqueConstraint('line_email', name='uq_line_email_google_email'),
     )
 
     @classmethod
