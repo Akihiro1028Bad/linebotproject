@@ -123,7 +123,8 @@ def generate_auth_url():
         flow = InstalledAppFlow.from_client_secrets_file('secrets/credentials.json',
                                                          scopes=['https://www.googleapis.com/auth/calendar',
                                                                  'https://www.googleapis.com/auth/userinfo.email',
-                                                                 'https://www.googleapis.com/auth/userinfo.profile'])
+                                                                 'https://www.googleapis.com/auth/userinfo.profile',
+                                                                 'openid'])
 
         flow.redirect_uri = 'https://line-bot-oniisan-test-d81a1f540a61.herokuapp.com/oauth2callback'
         #flow.redirect_uri = 'https://d718-240b-10-2aa0-1700-d41d-508a-2051-a718.ngrok-free.app'
