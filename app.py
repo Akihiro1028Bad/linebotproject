@@ -31,7 +31,7 @@ LINE_SECRET = os.environ.get("LINE_SECRET")
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI  # SQLiteデータベースへのパス
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///app.db"  # SQLiteデータベースへのパス
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 変更を追跡しない設定
 db.init_app(app)  # ここでdbオブジェクトを初期化
 # Flask-Migrateを初期化
