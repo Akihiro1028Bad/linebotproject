@@ -177,13 +177,16 @@ def oauth2callback():
 
         try:
             userinfo = service.userinfo().get().execute()
+            user_email = userinfo.get('email')
+            user_id = userinfo.get('id')
             logging.debug(f"userinfo:{userinfo}")
+            logging.debug(f"user_id:{user_email}")
+            logging.debug(f"user_mail:{user_id}")
         except Exception as e:
             print(f"Error while making the request: {e}")
 
-        userinfo = service.userinfo().get().execute()
-        user_email = userinfo.get('email')
-        user_id = userinfo.get('id')
+        #userinfo = service.userinfo().get().execute()
+
 
     except HttpError as e:
         if e.resp.status == 401:
