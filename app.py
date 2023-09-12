@@ -107,10 +107,10 @@ def handle_follow(event):
     )
 
 
-@app.route("/login", methods=['GET'])
-def login():
-    auth_url = generate_auth_url()  # Google認証ページへのURLを生成
-    return redirect(auth_url)  # 生成したURLにリダイレクト
+#@app.route("/login", methods=['GET'])
+#def login():
+    #auth_url = generate_auth_url()  # Google認証ページへのURLを生成
+    #return redirect(auth_url)  # 生成したURLにリダイレクト
 
 
 # Google OAuth2.0のフローを開始
@@ -122,7 +122,9 @@ def generate_auth_url():
     """
     try:
         flow = InstalledAppFlow.from_client_secrets_file('secrets/credentials.json',
-                                                         scopes=['https://www.googleapis.com/auth/calendar'])
+                                                         scopes=['https://www.googleapis.com/auth/calendar',
+                                                                 'https://www.googleapis.com/auth/userinfo.email',
+                                                                 'https://www.googleapis.com/auth/userinfo.profile'])
 
         flow.redirect_uri = 'https://line-bot-oniisan-test-d81a1f540a61.herokuapp.com/oauth2callback'
         #flow.redirect_uri = 'https://d718-240b-10-2aa0-1700-d41d-508a-2051-a718.ngrok-free.app'
@@ -132,7 +134,7 @@ def generate_auth_url():
             prompt='consent'
         )
         logging.debug("URL発行しました。")
-        return authorization_url
+        return redirect(authorization_url)
     except Exception as e:
         logging.error(f"Error generating the auth URL: {e}")
         return None
