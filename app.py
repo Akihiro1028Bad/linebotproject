@@ -170,8 +170,16 @@ def oauth2callback():
 
         if credentials.valid:
             logging.debug("Credentials are valid OK.")
+            logging.debug(f"Token expiry: {credentials.expiry}")
+            logging.debug(f"トークンは発行されています")
         else:
-            logging.error("Credentials are not valid NO.")
+            logging.debug("Credentials are not valid NO.")
+
+        try:
+            userinfo = service.userinfo().get().execute()
+            logging.debug(f"userinfo:{userinfo}")
+        except Exception as e:
+            print(f"Error while making the request: {e}")
 
         userinfo = service.userinfo().get().execute()
         user_email = userinfo.get('email')
@@ -243,5 +251,5 @@ if __name__ == '__main__':
                         format='%(asctime)s - %(levelname)s - %(message)s')
     with app.app_context():  # アプリケーションコンテキストを設定
         db.create_all()  # ここでデータベースを作成
-    app.run(debug=True)
+    app.run(debug=False)
 
