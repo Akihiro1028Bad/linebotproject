@@ -166,7 +166,7 @@ def oauth2callback():
         credentials = flow.credentials
         service = build('calendar', 'v3', credentials=credentials)
 
-        userinfo = service.people().get(userId='me').execute()
+        userinfo = service.userinfo().get().execute()
         user_email = userinfo.get('email')
         user_id = userinfo.get('id')
 
@@ -185,7 +185,9 @@ def oauth2callback():
                 db.session.commit()
 
                 service = build('calendar', 'v3', credentials=credentials)
-                userinfo = service.people().get(userId='me').execute()
+                userinfo = service.userinfo().get().execute()
+                user_email = userinfo.get('email')
+                user_id = userinfo.get('id')
             else:
                 logging.error("User not found in the database.")
                 return "User not found.", 400
