@@ -41,12 +41,12 @@ db.init_app(app)  # ここでdbオブジェクトを初期化
 migrate = Migrate(app, db)
 
 
-#line_bot_api = LineBotApi(API_KEY)
-#handler = WebhookHandler(LINE_SECRET)
+line_bot_api = LineBotApi(API_KEY)
+handler = WebhookHandler(LINE_SECRET)
 
-line_bot_api = LineBotApi("zAb9OA5mG+Ns2i348QUcvDubA+2r8VCL6h67+Zfr5bkiEPt7KsfBoUxWF179I14xMyfOr8G30gik47vYkiPxmPG" +
-                          "vqhsZdoE0KzZY734vPfmXigXBv53jPBaoKhsLtMgJl0kUYsfcCG1WKCwr2ziEVQdB04t89/1O/w1cDnyilFU")
-handler = WebhookHandler("91ec5665693eb55ef3fab7ebe4e09b22")
+#line_bot_api = LineBotApi("zAb9OA5mG+Ns2i348QUcvDubA+2r8VCL6h67+Zfr5bkiEPt7KsfBoUxWF179I14xMyfOr8G30gik47vYkiPxmPG" +
+                          #"vqhsZdoE0KzZY734vPfmXigXBv53jPBaoKhsLtMgJl0kUYsfcCG1WKCwr2ziEVQdB04t89/1O/w1cDnyilFU")
+#handler = WebhookHandler("91ec5665693eb55ef3fab7ebe4e09b22")
 
 
 @app.route("/callback", methods=['POST'])
