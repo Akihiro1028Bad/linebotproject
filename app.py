@@ -27,7 +27,7 @@ import os
 
 API_KEY = os.environ.get("API_KEY")
 #DATABASE_URI = os.environ.get("DATABASE_URI")
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://")
 LINE_SECRET = os.environ.get("LINE_SECRET")
 
 
