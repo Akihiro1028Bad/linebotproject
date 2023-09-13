@@ -7,3 +7,4 @@ gunicorn==21.2.0
 flask_migrate==4.0.4
 oauthlib==3.2.2
 sqlalchemy==1.4.39
+psycopg2==2.9.7

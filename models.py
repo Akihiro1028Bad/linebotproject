@@ -27,9 +27,10 @@ class User(db.Model):
     )
 
     @classmethod
-    def add_new_user(cls, google_user_id, google_email,
+    def add_new_user(cls, line_user_id, google_user_id, google_email,
                      google_access_token=None, google_refresh_token=None, token_expiry=None):
         new_user = User(
+            line_user_id = line_user_id,
             google_user_id=google_user_id,
             google_email=google_email,
             google_access_token=google_access_token,

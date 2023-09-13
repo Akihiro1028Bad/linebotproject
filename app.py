@@ -26,12 +26,14 @@ from EventHandler import EventHandler
 import os
 
 API_KEY = os.environ.get("API_KEY")
-DATABASE_URI = os.environ.get("DATABASE_URI")
+#DATABASE_URI = os.environ.get("DATABASE_URI")
+DATABASE_URL = os.environ.get('DATABASE_URL')
 LINE_SECRET = os.environ.get("LINE_SECRET")
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///app.db"  # SQLiteデータベースへのパス
+#app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///app.db"  # SQLiteデータベースへのパス
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 変更を追跡しない設定
 app.secret_key = 'your_secret_key'  # 実際の運用時には適切なキーを設定してください
 db.init_app(app)  # ここでdbオブジェクトを初期化
@@ -228,7 +230,8 @@ def oauth2callback():
     if not user:
         user = User.query.filter_by(google_email=user_email).first()
         if not user:
-            User.add_new_user(google_email=user_email, google_user_id=user_id, line_id=session.get('line_id'))
+            line_id = session.get('line_id')
+            User.add_new_user(google_email=user_email, google_user_id=user_id, line_user_id=line_id)
 
     # ... その他のAPIを使用した処理 ...
 
