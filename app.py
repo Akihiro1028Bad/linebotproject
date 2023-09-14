@@ -25,15 +25,13 @@ from EventHandler import EventHandler
 
 import os
 
-API_KEY = os.environ.get("API_KEY")
+# API_KEY = os.environ.get("API_KEY")
 # DATABASE_URI = os.environ.get("DATABASE_URI")
-DATABASE_URL = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://")
-LINE_SECRET = os.environ.get("LINE_SECRET")
+# LINE_SECRET = os.environ.get("LINE_SECRET")
 
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///app.db"  # SQLiteデータベースへのパス
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///app.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 変更を追跡しない設定
 app.secret_key = 'your_secret_key'  # 実際の運用時には適切なキーを設定してください
 db.init_app(app)  # ここでdbオブジェクトを初期化
@@ -41,12 +39,12 @@ db.init_app(app)  # ここでdbオブジェクトを初期化
 migrate = Migrate(app, db)
 
 
-line_bot_api = LineBotApi(API_KEY)
-handler = WebhookHandler(LINE_SECRET)
+# line_bot_api = LineBotApi(API_KEY)
+# handler = WebhookHandler(LINE_SECRET)
 
-#line_bot_api = LineBotApi("zAb9OA5mG+Ns2i348QUcvDubA+2r8VCL6h67+Zfr5bkiEPt7KsfBoUxWF179I14xMyfOr8G30gik47vYkiPxmPG" +
-                          #"vqhsZdoE0KzZY734vPfmXigXBv53jPBaoKhsLtMgJl0kUYsfcCG1WKCwr2ziEVQdB04t89/1O/w1cDnyilFU")
-#handler = WebhookHandler("91ec5665693eb55ef3fab7ebe4e09b22")
+line_bot_api = LineBotApi("zAb9OA5mG+Ns2i348QUcvDubA+2r8VCL6h67+Zfr5bkiEPt7KsfBoUxWF179I14xMyfOr8G30gik47vYkiPxmPG" +
+                          "vqhsZdoE0KzZY734vPfmXigXBv53jPBaoKhsLtMgJl0kUYsfcCG1WKCwr2ziEVQdB04t89/1O/w1cDnyilFU")
+handler = WebhookHandler("91ec5665693eb55ef3fab7ebe4e09b22")
 
 
 @app.route("/callback", methods=['POST'])
@@ -131,7 +129,7 @@ def generate_auth_url():
                                                                  'https://www.googleapis.com/auth/userinfo.profile',
                                                                  'openid'])
 
-        flow.redirect_uri = 'https://line-bot-oniisan-test-d81a1f540a61.herokuapp.com/oauth2callback'
+        flow.redirect_uri = 'https://line-bot-oniisan-test-ver2-9134863b1e87.herokuapp.com/oauth2callback'
         #flow.redirect_uri = 'https://d718-240b-10-2aa0-1700-d41d-508a-2051-a718.ngrok-free.app'
         authorization_url, state = flow.authorization_url(
             access_type='offline',
