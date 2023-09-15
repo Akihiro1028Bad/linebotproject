@@ -6,8 +6,6 @@ from flask import request, abort
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-
-
 from google_auth_oauthlib.flow import Flow, InstalledAppFlow
 
 from googleapiclient.errors import HttpError
@@ -137,7 +135,8 @@ def generate_auth_url():
                                                                  'openid'])
 
         flow.redirect_uri = 'https://line-bot-oniisan-test-ver2-9134863b1e87.herokuapp.com/oauth2callback'
-        #flow.redirect_uri = 'https://d718-240b-10-2aa0-1700-d41d-508a-2051-a718.ngrok-free.app'
+        logging.debug(f"flow.redirect_uri→{flow.redirect_uri}")
+        # flow.redirect_uri = 'https://d718-240b-10-2aa0-1700-d41d-508a-2051-a718.ngrok-free.app'
         authorization_url, state = flow.authorization_url(
             access_type='offline',
             include_granted_scopes='true',
@@ -175,6 +174,7 @@ def oauth2callback():
         )
         logging.debug("クライアントの情報を取得しました")
         flow.redirect_uri = url_for('oauth2callback', _external=True, _scheme='https')
+        logging.debug(f"flow.redirect_uri→{flow.redirect_uri}")
         logging.debug("URIを受け取りました")
         authorization_response = request.url
         logging.debug(f"Uauthorization_responseにURLを代入しました：URL→{authorization_response}")
