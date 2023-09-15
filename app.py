@@ -176,7 +176,7 @@ def oauth2callback():
         flow.redirect_uri = url_for('oauth2callback', _external=True, _scheme='https')
         logging.debug(f"flow.redirect_uri→{flow.redirect_uri}")
         logging.debug("URIを受け取りました")
-        authorization_response = request.url
+        authorization_response = request.url.replace("http://", "https://")
         logging.debug(f"Uauthorization_responseにURLを代入しました：URL→{authorization_response}")
         flow.fetch_token(authorization_response=authorization_response)
 
