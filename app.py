@@ -106,7 +106,8 @@ def handle_follow(event):
     auth_url = generate_auth_url()
     # 生成したリンクをユーザーに送信
 
-    session['line_id'] = event.source.userId
+    session['line_id'] = event.source.user_id
+    logging.debug(f"ラインユーザID→{event.source.user_id}")
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=f"Google認証を行うには、以下のリンクをクリックしてください: {auth_url}")
@@ -183,8 +184,14 @@ def oauth2callback():
             logging.debug("Credentials are valid OK.")
             logging.debug(f"Token expiry: {credentials.expiry}")
             logging.debug(f"トークンは発行されています")
+            logging.debug(f"アクセストークン→{credentials.token}")
         else:
             logging.debug("Credentials are not valid NO.")
+
+        # リフレッシュトークンをログに出力
+        if credentials.refresh_token:
+            logging.debug(f"リフレッシュトークン→{credentials.refresh_token}")
+
 
         try:
             userinfo = service.userinfo().get().execute()
