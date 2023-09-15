@@ -29,9 +29,11 @@ import os
 # DATABASE_URI = os.environ.get("DATABASE_URI")
 # LINE_SECRET = os.environ.get("LINE_SECRET")
 
+DATABASE_URL = os.environ['DATABASE_URL'].replace("postgres://", "postgresql://")
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 変更を追跡しない設定
 app.secret_key = 'your_secret_key'  # 実際の運用時には適切なキーを設定してください
 db.init_app(app)  # ここでdbオブジェクトを初期化
