@@ -30,6 +30,7 @@ import os
 # LINE_SECRET = os.environ.get("LINE_SECRET")
 
 DATABASE_URL = os.environ['DATABASE_URL'].replace("postgres://", "postgresql://")
+logging.debug(f"データベースURL→{DATABASE_URL}")
 
 
 app = Flask(__name__)
