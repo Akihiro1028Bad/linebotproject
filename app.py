@@ -4,6 +4,9 @@ from flask import Flask, session
 from flask_migrate import Migrate
 from flask import request, abort
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+
 
 from google_auth_oauthlib.flow import Flow, InstalledAppFlow
 
@@ -269,6 +272,8 @@ def renew_token(refresh_token):
 
 
 if __name__ == '__main__':
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)  # ProxyFixをインポートする必要があります
+
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
     with app.app_context():  # アプリケーションコンテキストを設定
