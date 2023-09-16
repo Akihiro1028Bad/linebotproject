@@ -38,7 +38,7 @@ logging.debug(f"データベースURL→{DATABASE_URL}")
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 変更を追跡しない設定
-app.secret_key = 'your_secret_key'  # 実際の運用時には適切なキーを設定してください
+app.config['SECRET_KEY'] = 'fdfdsaklgiohoehogiojgfviovjioerj'  # 実際のキーはランダムな文字列にすることをおすすめします。
 db.init_app(app)  # ここでdbオブジェクトを初期化
 # Flask-Migrateを初期化
 migrate = Migrate(app, db)
