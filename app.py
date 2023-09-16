@@ -116,7 +116,7 @@ def handle_follow(event):
     except Exception as e:
         logging.error(f"lineID一時保存に失敗しています。内容→{e}")
 
-    logging.debug(f"一時的にlineIDを保存しました。成功していればID→→{session.get('line_id')}")
+    logging.debug(f"一時的にlineIDを保存しました。成功していればID→→{TempLineID.query.first()}")
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=f"Google認証を行うには、以下のリンクをクリックしてください: {auth_url}")
@@ -262,7 +262,7 @@ def oauth2callback():
             logging.debug(f"一時的な保存テーブルに保存しているlineID→{line_id_from_temp}")
             User.add_new_user(line_user_id=line_id_from_temp, google_user_id=user_id, google_email=user_email,
                               google_access_token=credentials.token, google_refresh_token=credentials.refresh_token,
-                              token_expiry=True)
+                              )
 
     # ... その他のAPIを使用した処理 ...
 
