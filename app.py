@@ -20,8 +20,9 @@ from linebot import LineBotApi, WebhookHandler
 
 from linebot.models import TextMessage, MessageEvent, PostbackEvent, FollowEvent, TextSendMessage
 
+import models
 from models import db
-from models import User
+from models import User, TempLineID
 from EventHandler import EventHandler
 
 import os
@@ -30,23 +31,23 @@ import os
 # DATABASE_URI = os.environ.get("DATABASE_URI")
 # LINE_SECRET = os.environ.get("LINE_SECRET")
 
-DATABASE_URL = os.environ['DATABASE_URL'].replace("postgres://", "postgresql://")
-# DATABASE_URL = "sqlite:///app.db" ローカル用です
+DATABASE_URL = os.environ['DATABASE_URL'].replace("postgres://", "postgresql://") # 本番用です
+# DATABASE_URL = "sqlite:///app.db" #ローカル用です
 logging.debug(f"データベースURL→{DATABASE_URL}")
 
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 変更を追跡しない設定
-app.config['SECRET_KEY'] = 'fdfdsaklgiohoehogiojgfviovjioerj'  # 実際のキーはランダムな文字列にすることをおすすめします。
 db.init_app(app)  # ここでdbオブジェクトを初期化
 # Flask-Migrateを初期化
 migrate = Migrate(app, db)
 
-
+# 本番稼働する際は以下を使用
 # line_bot_api = LineBotApi(API_KEY)
 # handler = WebhookHandler(LINE_SECRET)
 
+# 開発中は以下でおｋ
 line_bot_api = LineBotApi("zAb9OA5mG+Ns2i348QUcvDubA+2r8VCL6h67+Zfr5bkiEPt7KsfBoUxWF179I14xMyfOr8G30gik47vYkiPxmPG" +
                           "vqhsZdoE0KzZY734vPfmXigXBv53jPBaoKhsLtMgJl0kUYsfcCG1WKCwr2ziEVQdB04t89/1O/w1cDnyilFU")
 handler = WebhookHandler("91ec5665693eb55ef3fab7ebe4e09b22")
@@ -74,6 +75,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     try:
+        # テキストメッセージを受け取った場合、ここに入ります
         eventhandler = EventHandler(event, line_bot_api)
         eventhandler.handle()
 
@@ -108,9 +110,9 @@ def handle_follow(event):
     auth_url = generate_auth_url()
     # 生成したリンクをユーザーに送信
 
-    session['line_id'] = event.source.user_id
+    models.TempLineID(event.source.user_id)
     logging.debug(f"ラインユーザID→{event.source.user_id}")
-    logging.debug(f"セッションlineID→{session.get('line_id')}")
+    logging.debug(f"一時的にlineIDを保存しました。成功していればID→→{session.get('line_id')}")
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=f"Google認証を行うには、以下のリンクをクリックしてください: {auth_url}")
@@ -243,9 +245,18 @@ def oauth2callback():
     if not user:
         user = User.query.filter_by(google_email=user_email).first()
         if not user:
-            logging.debug(f"lineID→{session.get('line_id')}")
-            line_id = session.get('line_id')
-            User.add_new_user(line_user_id=line_id, google_user_id=user_id, google_email=user_email,
+            # TempLineIDテーブルから唯一のレコードを取得
+            temp_line_record = TempLineID.query.first()
+
+            # このレコードからline_idを取得
+            if temp_line_record:
+                line_id_from_temp = temp_line_record.line_id
+            else:
+                # 何らかの理由でレコードが見つからない場合はエラー処理または適切なデフォルト値の設定が必要
+                raise ValueError("Google認証時に一時的にlineIDを保存する想定ですが、データが見つかりませんでした")
+
+            logging.debug(f"一時的な保存テーブルに保存しているlineID→{line_id_from_temp}")
+            User.add_new_user(line_user_id=line_id_from_temp, google_user_id=user_id, google_email=user_email,
                               google_access_token=credentials.token, google_refresh_token=credentials.refresh_token,
                               token_expiry=True)
 

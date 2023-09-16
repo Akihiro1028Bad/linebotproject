@@ -166,3 +166,40 @@ class TempDate(db.Model):
     month = db.Column(db.Integer, nullable=False)  # 月
     day = db.Column(db.Integer, nullable=False)  # 日
 
+
+class TempLineID(db.Model):
+    # ID カラム: 一意な主キーとして使用
+    id = db.Column(db.Integer, primary_key=True)
+
+    # line_id カラム: LINEユーザーのIDを保存。ユニークな値を持つことを保証
+    line_id = db.Column(db.String(255), unique=True, nullable=False)
+
+    # created_at カラム: レコードが作成された日時を保存
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @classmethod
+    def update_or_insert_line_id(cls, new_line_id):
+        """
+        LINEユーザーのIDをデータベースにアップデートまたはインサートする。
+
+        引数:
+        - new_line_id (str): 保存または更新したいLINEユーザーのID
+
+        戻り値:
+        なし
+        """
+        # 既存のレコードをデータベースから検索
+        existing_record = cls.query.first()
+
+        if existing_record:
+            # レコードが存在する場合、line_idを新しいものに更新
+            existing_record.line_id = new_line_id
+            existing_record.created_at = datetime.utcnow()
+        else:
+            # レコードが存在しない場合、新しいレコードを作成
+            new_record = cls(line_id=new_line_id)
+            db.session.add(new_record)
+
+        # 上記の変更をデータベースに保存
+        db.session.commit()
+
