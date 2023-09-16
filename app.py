@@ -30,7 +30,8 @@ import os
 # DATABASE_URI = os.environ.get("DATABASE_URI")
 # LINE_SECRET = os.environ.get("LINE_SECRET")
 
-DATABASE_URL = os.environ['DATABASE_URL'].replace("postgres://", "postgresql://")
+# DATABASE_URL = os.environ['DATABASE_URL'].replace("postgres://", "postgresql://")
+DATABASE_URL = "sqlite:///app.db"
 logging.debug(f"データベースURL→{DATABASE_URL}")
 
 
