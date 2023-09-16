@@ -110,6 +110,7 @@ def handle_follow(event):
 
     session['line_id'] = event.source.user_id
     logging.debug(f"ラインユーザID→{event.source.user_id}")
+    logging.debug(f"セッションlineID→{session.get('line_id')}")
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=f"Google認証を行うには、以下のリンクをクリックしてください: {auth_url}")
@@ -242,8 +243,11 @@ def oauth2callback():
     if not user:
         user = User.query.filter_by(google_email=user_email).first()
         if not user:
+            logging.debug(f"lineID→{session.get('line_id')}")
             line_id = session.get('line_id')
-            User.add_new_user(google_email=user_email, google_user_id=user_id, line_user_id=line_id)
+            User.add_new_user(line_user_id=line_id, google_user_id=user_id, google_email=user_email,
+                              google_access_token=credentials.token, google_refresh_token=credentials.refresh_token,
+                              token_expiry=True)
 
     # ... その他のAPIを使用した処理 ...
 
