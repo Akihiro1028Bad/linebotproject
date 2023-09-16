@@ -110,8 +110,12 @@ def handle_follow(event):
     auth_url = generate_auth_url()
     # 生成したリンクをユーザーに送信
 
-    models.TempLineID(event.source.user_id)
-    logging.debug(f"ラインユーザID→{event.source.user_id}")
+    try:
+        logging.debug(f"ラインユーザID→{event.source.user_id}")
+        models.TempLineID.update_or_insert_line_id(event.source.user_id)
+    except Exception as e:
+        logging.error(f"lineID一時保存に失敗しています。内容→{e}")
+
     logging.debug(f"一時的にlineIDを保存しました。成功していればID→→{session.get('line_id')}")
     line_bot_api.reply_message(
         event.reply_token,
