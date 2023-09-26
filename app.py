@@ -173,7 +173,7 @@ def handle_unfollow(event):
         logging.error(f"ユーザデータの削除中にエラーが発生しました。内容→{e}")
 
 
-@app.route('/oauth2callback', methods=['GET'])
+@app.route('/oauth2callback', methods=['GET', 'POST'])
 def oauth2callback():
     result = google_auth.oauth2callback(line_bot_api)
 
