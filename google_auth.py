@@ -16,7 +16,7 @@ import requests
 
 # ローカルモジュール
 import massege
-from models import User, AuthToken, db
+from models import User, AuthToken2, db
 
 
 def generate_auth_url(token):
@@ -114,7 +114,7 @@ def handle_user_information(userinfo, credentials, state, line_bot_api):
     user_id = userinfo.get('id')
 
     user = User.query.filter_by(google_email=user_email).first()
-    token_entry = AuthToken.query.filter_by(token=state).first()
+    token_entry = AuthToken2.query.filter_by(token=state).first()
 
     if not user:
         if token_entry:
@@ -132,7 +132,7 @@ def handle_user_information(userinfo, credentials, state, line_bot_api):
         )
 
     # 一時的に保存しているトークンとIDを削除
-    AuthToken.delete_token_data(state)
+    AuthToken2.delete_token_data(state)
 
     # 指定ユーザにlineメッセージを送信
     line_bot_api.push_message(
@@ -171,7 +171,7 @@ def generate_and_save_token(user_id: str) -> str:
     :return: 生成したトークン
     """
     token = secrets.token_urlsafe(16)
-    AuthToken.add_token(user_id, token)
+    AuthToken2.add_token(user_id, token)
     return token
 
 

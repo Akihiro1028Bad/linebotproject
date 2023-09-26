@@ -378,3 +378,72 @@ class AuthToken(db.Model):
         except Exception as e:
             logging.error(f"Error deleting token data: {e}")
             return False
+
+
+class AuthToken2(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    line_id = db.Column(db.String, unique=True, nullable=False)
+    token = db.Column(db.String, unique=True, nullable=False)
+    gmail_address = db.Column(db.String, nullable=True)
+    expiration_time = db.Column(db.DateTime, nullable=False)  # 有効期限のカラムも追加
+
+    @classmethod
+    def add_token(cls, line_id, token):
+        # 現在の時間から1時間後の有効期限を計算
+        expiration = datetime.utcnow() + timedelta(hours=1)
+
+        # 指定したline_idを持つエントリをデータベースから検索
+        existing_entry = AuthToken2.query.filter_by(line_id=line_id).first()
+
+        if existing_entry:
+            # 既存のエントリが見つかった場合
+            logging.info(f"{line_id} のトークンと有効期限を更新します。")
+
+            # トークンと有効期限を更新
+            existing_entry.token = token
+            existing_entry.expiration_time = expiration
+        else:
+            # 既存のエントリが見つからなかった場合
+            logging.info(f"{line_id} の新しいエントリを追加します。")
+
+            # 新しいレコードを作成してデータベースに追加
+            auth_token = AuthToken2(line_id=line_id, token=token, expiration_time=expiration)
+            db.session.add(auth_token)
+
+        # データベースの変更をコミット
+        try:
+            db.session.commit()
+            logging.info("データベースの変更を正常にコミットしました。")
+        except Exception as e:
+            logging.error(f"データベースへの変更のコミットに失敗しました。エラー: {e}")
+
+    @classmethod
+    def get_line_id_by_token(cls, token):
+        auth_token = cls.query(AuthToken2).filter_by(token=token).first()
+        if auth_token and auth_token.expiration_time > datetime.utcnow():
+            return auth_token.line_id
+        else:
+            return None
+
+    @classmethod
+    def delete_token_data(cls, token):
+        try:
+            # トークンを使用して関連するレコードを検索
+            token_entry = cls.query.filter_by(token=token).first()
+
+            # レコードが見つかった場合
+            if token_entry:
+                # データベースセッションからそのレコードを削除
+                db.session.delete(token_entry)
+
+                # 変更内容をデータベースにコミット
+                db.session.commit()
+
+                return True
+            else:
+                logging.warning(f"No data found for token: {token}")
+                return False
+
+        except Exception as e:
+            logging.error(f"Error deleting token data: {e}")
+            return False
