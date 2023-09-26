@@ -26,8 +26,6 @@ class User(db.Model):
     is_notification_enabled = db.Column(db.Boolean, default=True)
     notification_time = db.Column(db.Time, nullable=True, default=time(6, 0))
 
-    events = db.relationship('Event', backref='user', lazy=True)  # Eventテーブルとのリレーション（必要であれば）
-
     __table_args__ = (
         UniqueConstraint('google_user_id', name='uq_google_user_id'),
         UniqueConstraint('google_email', name='uq_google_email'),
