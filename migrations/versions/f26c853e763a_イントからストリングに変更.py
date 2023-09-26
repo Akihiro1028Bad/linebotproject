@@ -26,6 +26,9 @@ def upgrade():
                type_=sa.String(length=255),
                existing_nullable=False)
 
+        # 外部キー制約を削除
+        op.drop_constraint('user_state_user_id_fkey', 'user_state', type_='foreignkey')
+
     with op.batch_alter_table('user_state', schema=None) as batch_op:
         batch_op.alter_column('user_id',
                existing_type=sa.INTEGER(),
