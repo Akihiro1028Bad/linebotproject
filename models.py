@@ -75,7 +75,7 @@ class User(db.Model):
 # Eventモデル（テーブル）を定義
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # 主キー
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # 外部キー
+    user_id = db.Column(db.String(255), db.ForeignKey('user.id'), nullable=False)  # 外部キー
     title = db.Column(db.String(255), nullable=False)  # イベントのタイトル
     start_time = db.Column(db.DateTime, nullable=False)  # 開始時間
     end_time = db.Column(db.DateTime, nullable=False)  # 終了時間
@@ -200,7 +200,7 @@ class UserState(db.Model):
     - next_question (str): ユーザーに次に提示すべき質問やアクションの情報。
     """
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.String(255), db.ForeignKey('user.id'), nullable=False)
     operation = db.Column(db.String(50), nullable=True)
     next_question = db.Column(db.String(50), nullable=True)
 
