@@ -187,8 +187,10 @@ def send_auth_instruction(event, line_bot_api: LineBotApi, auth_url: str):
     intro_message = (
         "はじめまして！スケジュールお兄さんです！⏰\n"
         "このアカウントを活用するためには、Google認証が必要です！✨\n"
-        "Google認証を完了すると、スケジュールの追加やチェックなど、便利な機能を使用いただけます。\n\n"
-        "認証は簡単！以下のリンクをコピーして「Safari」や「Chrome」に貼り付けて、手順に従ってください。🔗\n"
+        "Google認証を完了すると、Googleカレンダーの予定追加や予定確認など、便利な機能を使用いただけます。\n\n"
+        "認証は簡単！\n"
+        "以下のリンクを開いて手順に従ってください🔗↓↓↓↓\n"
+        f"{config.INSTA_PROCESS_URL}\n"
         "ご不明な点があれば、お気軽にご連絡くださいね😊"
     )
     line_bot_api.reply_message(

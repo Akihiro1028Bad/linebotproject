@@ -35,6 +35,7 @@ if os.environ.get('PRODUCTION') is None:
     LINE_SECRET = os.environ.get("LINE_SECRET")
     DATABASE_URL = os.environ.get("DATABASE_URL")
     REDIRECT_URI = os.environ.get("REDIRECT_URI")
+    INSTA_PROCESS_URL = os.environ.get("INSTA_PROCESS_URL")
 
 else:
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
@@ -43,6 +44,7 @@ else:
     LINE_SECRET = os.environ.get("LINE_SECRET")
     DATABASE_URL = os.environ['DATABASE_URL'].replace("postgres://", "postgresql://")  # 本番用です
     REDIRECT_URI = os.environ.get("REDIRECT_URI")
+    INSTA_PROCESS_URL = os.environ.get("INSTA_PROCESS_URL")
 
 
 messages = [
