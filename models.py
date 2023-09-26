@@ -72,57 +72,6 @@ class User(db.Model):
         return user is not None
 
 
-# Eventモデル（テーブル）を定義
-class Event(db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # 主キー
-    user_id = db.Column(db.String(255), db.ForeignKey('user.id'), nullable=False)  # 外部キー
-    title = db.Column(db.String(255), nullable=False)  # イベントのタイトル
-    start_time = db.Column(db.DateTime, nullable=False)  # 開始時間
-    end_time = db.Column(db.DateTime, nullable=False)  # 終了時間
-    location = db.Column(db.String(255), nullable=True)  # 場所
-    note = db.Column(db.Text, nullable=True)  # メモ
-    reminders = db.relationship('Reminder', backref='event', lazy=True)  # Reminderテーブルとのリレーショ
-
-    @classmethod
-    def add_new_event(cls, user_id, title, start_time, end_time, location=None, note=None):
-        """
-        新しいイベントをデータベースに追加するメソッド
-
-        :param user_id: ユーザーID
-        :param title: イベントのタイトル
-        :param start_time: イベントの開始時刻（文字列形式、例："2023-01-01 12:00"）
-        :param end_time: イベントの終了時刻（文字列形式、例："2023-01-01 13:00"）
-        :param location: イベントの場所（オプション）
-        :param note: イベントに関するメモ（オプション）
-        """
-
-        new_event = cls(
-            user_id=user_id,
-            title=title,
-            start_time=start_time,
-            end_time=end_time,
-            location=location,
-            note=note
-        )
-        db.session.add(new_event)
-        db.session.commit()
-
-        return new_event  # 追加されたイベントオブジェクトを返す
-
-    # イベントテーブルのデータを取得
-    def serialize(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            # その他のフィールドもここに
-            'user_id': self.user_id,
-            'start_time': self.start_time,
-            'end_time': self.end_time,
-            'Location': self.location,
-            'note': self.note
-        }
-
-
 class TempEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(255), db.ForeignKey('user.id'), nullable=False)
@@ -157,35 +106,6 @@ class TempEvent(db.Model):
         db.session.commit()
 
         logging.debug("Temp_eventを削除しました")
-
-
-# Reminderモデル（テーブル）を定義
-class Reminder(db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # 主キー
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)  # 外部キー
-    reminder_time = db.Column(db.DateTime, nullable=False)  # リマインダー時間
-    status = db.Column(db.String(50), nullable=False)  # ステータス（例：発火済み、未発火など）
-
-    @classmethod
-    def add_new_reminder(cls, event_id, reminder_time_str, status='未発火'):
-        """
-        新しいリマインダーをデータベースに追加するメソッド
-
-        :param event_id: イベントID
-        :param reminder_time_str: リマインダーの発火時刻（文字列形式、例："2023-01-01 11:50"）
-        :param status: リマインダーのステータス（デフォルトは '未発火'）
-        """
-        reminder_time = datetime.strptime(reminder_time_str, '%Y-%m-%d %H:%M')
-
-        new_reminder = cls(
-            event_id=event_id,
-            reminder_time=reminder_time,
-            status=status
-        )
-        db.session.add(new_reminder)
-        db.session.commit()
-
-        return new_reminder  # 追加されたリマインダーオブジェクトを返す
 
 
 class UserState(db.Model):
