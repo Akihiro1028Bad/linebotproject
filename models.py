@@ -1,7 +1,13 @@
-from flask import Flask
+# 標準ライブラリ
+import logging
+from datetime import datetime, timedelta, time
+
+# 外部ライブラリ
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.schema import UniqueConstraint, ForeignKeyConstraint
-from datetime import datetime
+from sqlalchemy.schema import UniqueConstraint
+
+# ローカルモジュール
+import config
 
 
 # SQLAlchemyを初期化
@@ -17,6 +23,8 @@ class User(db.Model):
     google_access_token = db.Column(db.String(255), nullable=True)  # Googleのアクセストークン
     google_refresh_token = db.Column(db.String(255), nullable=True)  # Googleのリフレッシュトークン
     token_expiry = db.Column(db.DateTime, nullable=True)  # トークンの有効期限
+    is_notification_enabled = db.Column(db.Boolean, default=True)
+    notification_time = db.Column(db.Time, nullable=True, default=time(6, 0))
 
     events = db.relationship('Event', backref='user', lazy=True)  # Eventテーブルとのリレーション（必要であれば）
 
@@ -25,6 +33,16 @@ class User(db.Model):
         UniqueConstraint('google_email', name='uq_google_email'),
         UniqueConstraint('line_user_id', name='uq_line_email_google_email'),
     )
+
+    @classmethod
+    def get_all_user_ids_from_db(cls):
+        """
+        すべてのLINEユーザーIDをデータベースから取得する。
+
+        Returns:
+            list: LINEユーザーIDのリスト
+        """
+        return [user.line_user_id for user in cls.query.all()]
 
     @classmethod
     def add_new_user(cls, line_user_id, google_user_id, google_email,
@@ -41,6 +59,18 @@ class User(db.Model):
         db.session.commit()
         return new_user
 
+    @classmethod
+    def user_exists(cls, line_user_id):
+        """
+        指定したLINEユーザIDのユーザが存在するかどうかを調べる関数
+
+        :param line_user_id: 調べたいLINEユーザID
+        :return: ユーザが存在する場合はTrue, しない場合はFalse
+        """
+        user = User.query.filter_by(line_user_id=line_user_id).first()
+        logging.debug("ユーザテーブルにユーザが存在するか調べました")
+        return user is not None
+
 
 # Eventモデル（テーブル）を定義
 class Event(db.Model):
@@ -52,7 +82,6 @@ class Event(db.Model):
     location = db.Column(db.String(255), nullable=True)  # 場所
     note = db.Column(db.Text, nullable=True)  # メモ
     reminders = db.relationship('Reminder', backref='event', lazy=True)  # Reminderテーブルとのリレーショ
-
 
     @classmethod
     def add_new_event(cls, user_id, title, start_time, end_time, location=None, note=None):
@@ -103,6 +132,32 @@ class TempEvent(db.Model):
     location = db.Column(db.String(255), nullable=True)
     note = db.Column(db.Text, nullable=True)
 
+    @classmethod
+    def add_new_temp_event(cls, user_id, title=None, start_time=None, end_time=None, location=None, note=None):
+        """
+        新しいユーザーの状態をデータベースに追加するメソッド。
+
+        Parameters:
+        - user_id (int): 追加するユーザーのID。
+        - next_question (str): ユーザーに次に提示する質問やアクションの情報。
+        - operation (str): ユーザーの操作の情報。
+
+        Returns:
+        - instance: 作成されたUserStateのインスタンス。
+        """
+        temp_event = cls(user_id=user_id, title=title, start_time=start_time, end_time=end_time, location=location,
+                         note=note)
+        db.session.add(temp_event)
+        db.session.commit()
+        return temp_event
+
+    @classmethod
+    def temp_event_clear(cls, temp_event):
+        db.session.delete(temp_event)
+        db.session.commit()
+
+        logging.debug("Temp_eventを削除しました")
+
 
 # Reminderモデル（テーブル）を定義
 class Reminder(db.Model):
@@ -141,11 +196,65 @@ class UserState(db.Model):
     Attributes:
     - id (int): レコードの一意のID（主キー）。
     - user_id (int): ユーザーテーブルの外部キー。どのユーザーの状態であるかを示します。
+    - operation (str):　現在ユーザが行っている操作を保存しています（追加、確認、編集、消去、リマインドなど）
     - next_question (str): ユーザーに次に提示すべき質問やアクションの情報。
     """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    operation = db.Column(db.String(50), nullable=True)
     next_question = db.Column(db.String(50), nullable=True)
+
+    @classmethod
+    def add_new_user(cls, user_id, next_question=None, operation=None):
+        """
+        新しいユーザーの状態をデータベースに追加するメソッド。
+
+        Parameters:
+        - user_id (int): 追加するユーザーのID。
+        - next_question (str): ユーザーに次に提示する質問やアクションの情報。
+        - operation (str): ユーザーの操作の情報。
+
+        Returns:
+        - instance: 作成されたUserStateのインスタンス。
+        """
+        user_state = cls(user_id=user_id, next_question=next_question, operation=operation)
+        db.session.add(user_state)
+        db.session.commit()
+        return user_state
+
+    @classmethod
+    def user_operation_set(cls, user_state, operation):
+        """
+        user_stateテーブルのoperationカラムの情報を任意の物に設定するメソッド
+        :param user_state:user_stateテーブルのインスタンス
+        :param operation:任意の操作状況
+        :return:
+        """
+        user_state.operation = operation
+        db.session.add(user_state)
+        db.session.commit()
+        logging.debug(f"user_state.operationを更新しました。オペレーション→{user_state.operation}")
+
+    @classmethod
+    def user_next_question_set(cls, user_state, next_question):
+        user_state.next_question = next_question
+        db.session.add(user_state)
+        db.session.commit()
+        logging.debug(f"user_state.next_questionを更新しました。ネクストクエスチョン→{user_state.next_question}")
+
+    @classmethod
+    def user_state_clear(cls, user_state):
+        user_state.next_question = config.const_default
+        db.session.add(user_state)
+        db.session.commit()
+
+        user_state.operation = config.const_default
+        db.session.add(user_state)
+        db.session.commit()
+
+        logging.debug("user_stateをクリアしました")
+        logging.debug(f"user_state.operationをクリアしました。オペレーション→{user_state.operation}")
+        logging.debug(f"user_state.next_questionをクリアしました。ネクストクエスチョン→{user_state.next_question}")
 
 
 class TempDate(db.Model):
@@ -178,28 +287,94 @@ class TempLineID(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     @classmethod
-    def update_or_insert_line_id(cls, new_line_id):
+    def find_or_create_by_line_id(cls, line_id):
         """
-        LINEユーザーのIDをデータベースにアップデートまたはインサートする。
+        LINEユーザーのIDに基づいてデータベースからレコードを検索し、存在すればそのレコードを返す。
+        存在しない場合は新しいレコードを作成して返す。
 
         引数:
-        - new_line_id (str): 保存または更新したいLINEユーザーのID
+        - line_id (str): 検索または作成したいLINEユーザーのID
 
         戻り値:
-        なし
+        - record: 検索または作成されたレコード
         """
-        # 既存のレコードをデータベースから検索
-        existing_record = cls.query.first()
+        # line_idと一致するレコードをデータベースから検索
+        record = cls.query.filter_by(line_id=line_id).first()
 
-        if existing_record:
-            # レコードが存在する場合、line_idを新しいものに更新
-            existing_record.line_id = new_line_id
-            existing_record.created_at = datetime.utcnow()
-        else:
+        if not record:
             # レコードが存在しない場合、新しいレコードを作成
-            new_record = cls(line_id=new_line_id)
-            db.session.add(new_record)
+            record = cls(line_id=line_id)
+            db.session.add(record)
+            db.session.commit()
 
-        # 上記の変更をデータベースに保存
-        db.session.commit()
+        # 検索または作成されたレコードを返す
+        return record
 
+
+class AuthToken(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    line_id = db.Column(db.String, unique=True, nullable=False)
+    token = db.Column(db.String, unique=True, nullable=False)
+    gmail_address = db.Column(db.String, nullable=True)
+    expiration_time = db.Column(db.DateTime, nullable=False)  # 有効期限のカラムも追加
+
+    @classmethod
+    def add_token(cls, line_id, token):
+        # 現在の時間から1時間後の有効期限を計算
+        expiration = datetime.utcnow() + timedelta(hours=1)
+
+        # 指定したline_idを持つエントリをデータベースから検索
+        existing_entry = AuthToken.query.filter_by(line_id=line_id).first()
+
+        if existing_entry:
+            # 既存のエントリが見つかった場合
+            logging.info(f"{line_id} のトークンと有効期限を更新します。")
+
+            # トークンと有効期限を更新
+            existing_entry.token = token
+            existing_entry.expiration_time = expiration
+        else:
+            # 既存のエントリが見つからなかった場合
+            logging.info(f"{line_id} の新しいエントリを追加します。")
+
+            # 新しいレコードを作成してデータベースに追加
+            auth_token = AuthToken(line_id=line_id, token=token, expiration_time=expiration)
+            db.session.add(auth_token)
+
+        # データベースの変更をコミット
+        try:
+            db.session.commit()
+            logging.info("データベースの変更を正常にコミットしました。")
+        except Exception as e:
+            logging.error(f"データベースへの変更のコミットに失敗しました。エラー: {e}")
+
+    @classmethod
+    def get_line_id_by_token(cls, token):
+        auth_token = cls.query(AuthToken).filter_by(token=token).first()
+        if auth_token and auth_token.expiration_time > datetime.utcnow():
+            return auth_token.line_id
+        else:
+            return None
+
+    @classmethod
+    def delete_token_data(cls, token):
+        try:
+            # トークンを使用して関連するレコードを検索
+            token_entry = cls.query.filter_by(token=token).first()
+
+            # レコードが見つかった場合
+            if token_entry:
+                # データベースセッションからそのレコードを削除
+                db.session.delete(token_entry)
+
+                # 変更内容をデータベースにコミット
+                db.session.commit()
+
+                return True
+            else:
+                logging.warning(f"No data found for token: {token}")
+                return False
+
+        except Exception as e:
+            logging.error(f"Error deleting token data: {e}")
+            return False
