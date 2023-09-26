@@ -46,7 +46,6 @@ def generate_auth_url(token):
     # リダイレクト先のURLを設定 (開発環境に合わせてコメントアウトを切り替え)
     flow.redirect_uri = config.REDIRECT_URI
 
-
     try:
         authorization_url, _ = flow.authorization_url(
             access_type='offline',

@@ -125,7 +125,7 @@ class Event(db.Model):
 
 class TempEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.String(255), db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(255), nullable=True)
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
