@@ -194,7 +194,7 @@ class EventHandler:
             db.session.add(temp_event)
 
             formatted_datetime = selected_datetime_obj.strftime('%Y年%m月%d日 %H時%M分')
-            informed_message = TextSendMessage(text=f"終了日時を{formatted_datetime}に正しく設定しました👍\nご協力ありがとうございます！")
+            informed_message = TextSendMessage(text=f"終了日時を{formatted_datetime}に正しく設定しました👍")
 
             # 返信
             self.line_bot_api.reply_message(self.event.reply_token,

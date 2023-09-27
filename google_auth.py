@@ -33,7 +33,7 @@ def generate_auth_url(token):
     """
     # OAuth2.0のスコープを定義
     scopes = [
-        'https://www.googleapis.com/auth/calendar.events',
+        'https://www.googleapis.com/auth/calendar',
         'https://www.googleapis.com/auth/userinfo.email',
         'https://www.googleapis.com/auth/userinfo.profile',
         'openid'
@@ -91,7 +91,7 @@ def fetch_google_authentication_result():
     flow = InstalledAppFlow.from_client_secrets_file(
         './secrets/credentials.json',
         scopes=[
-            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/calendar',
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
             'openid'
@@ -191,9 +191,9 @@ def send_auth_instruction(event, line_bot_api: LineBotApi, TemperMessage_Auth):
         "はじめまして！スケジュールお兄さんです！⏰\n"
         "このアカウントを活用するためには、Google認証が必要です！✨\n"
         "Google認証を完了すると、Googleカレンダーの予定追加や予定確認など、便利な機能を使用いただけます。\n\n"
-        "認証は簡単！\n"
-        "以下のリンクを開いて手順に従ってください🔗↓↓↓↓\n"
-        f"{config.INSTA_PROCESS_URL}\n"
+        "認証は簡単！\n\n"
+        "以下のリンクの手順に従ってください🔗↓↓↓↓\n"
+        f"{config.INSTA_PROCESS_URL}\n\n"
         "ご不明な点があれば、お気軽にご連絡くださいね😊"
     )
     line_bot_api.reply_message(
@@ -251,7 +251,7 @@ def create_new_credentials(access_token, user, expiry_datetime):
         client_id=config.GOOGLE_CLIENT_ID,
         client_secret=config.GOOGLE_CLIENT_SECRET,
         scopes=[
-            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/calendar',
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
             'openid'
@@ -358,7 +358,7 @@ def create_credentials_from_user(user_data):
         token_uri="https://oauth2.googleapis.com/token",
         client_id=config.GOOGLE_CLIENT_ID,  # あなたのクライアントID
         client_secret=config.GOOGLE_CLIENT_SECRET,  # あなたのクライアントシークレット
-        scopes=['https://www.googleapis.com/auth/calendar.events',
+        scopes=['https://www.googleapis.com/auth/calendar',
                 'https://www.googleapis.com/auth/userinfo.email',
                 'https://www.googleapis.com/auth/userinfo.profile',
                 'openid'],

@@ -1,6 +1,7 @@
 # 標準ライブラリ
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
+
 
 # 外部ライブラリ
 from googleapiclient.discovery import build
@@ -14,7 +15,7 @@ import google_auth
 import EventConfirmation
 
 
-def notify_all_users_today_events():
+def notify_all_users_tomorrow_events():
     """
     すべてのユーザの今日のGoogleカレンダーの予定を取得し、LINEメッセージで送信する。
     """
@@ -40,16 +41,18 @@ def notify_all_users_today_events():
             # GoogleカレンダーAPIクライアントの構築
             service = build('calendar', 'v3', credentials=credentials)
 
-            # 今日の日付範囲を取得 (JST)
+            # 明日の日付範囲を取得 (JST)
             jst = pytz.timezone('Asia/Tokyo')
-            today_start = jst.localize(datetime.today().replace(hour=0, minute=0, second=0, microsecond=0))
-            today_end = jst.localize(datetime.today().replace(hour=23, minute=59, second=59, microsecond=999999))
+            tomorrow_start = jst.localize(
+                (datetime.today() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+            tomorrow_end = jst.localize(
+                (datetime.today() + timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=999999))
 
             # 指定された日の予定をすべて取得
-            all_events = EventConfirmation.get_oneday_events(today_start, today_end, service)
+            all_events = EventConfirmation.get_oneday_events(tomorrow_start, tomorrow_end, service)
 
             # lineメッセージを送信
-            one_day_events_message_send(user_id, all_events, today_start, "今日")
+            one_day_events_message_send(user_id, all_events, tomorrow_start, "明日")
 
     logging.info("すべてのユーザに今日の予定を送信しました")
 
@@ -57,8 +60,8 @@ def notify_all_users_today_events():
 def one_day_events_message_send(user_id, all_events, start_day, day_type):
     if not all_events:
         # 予定のFlexメッセージを作成してプッシュ
-        line_bot_api.push_message(user_id, [massege.not_event_morning_message(),
-                                            massege.everyday_message()])
+        line_bot_api.push_message(user_id, [massege.not_event_night_message(),
+                                            massege.not_event_night_message()])
 
     else:
         # 予定を開始時間でソート
@@ -68,11 +71,11 @@ def one_day_events_message_send(user_id, all_events, start_day, day_type):
         # 予定のFlexメッセージを作成してプッシュ
         line_bot_api.push_message(user_id,
                                   [massege.show_oneday_events_message(all_events, start_day, day_type),
-                                   massege.everyday_message_morning()])
+                                   massege.everyday_message_night()])
 
 
 def main():
-    notify_all_users_today_events()
+    notify_all_users_tomorrow_events()
 
 
 if __name__ == "__main__":
