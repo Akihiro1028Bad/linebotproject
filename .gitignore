@@ -11,7 +11,6 @@ venv/
 *.venv/
 env/
 .env
-secrets/
 
 # IDEs
 .vscode/
