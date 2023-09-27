@@ -1,5 +1,6 @@
 # 標準ライブラリ
 import logging
+import json  # <- この行を追加
 
 import config
 import secrets
@@ -88,16 +89,21 @@ def fetch_google_authentication_result():
     if not state:
         raise ValueError("State parameter is missing in the request.")
 
-    flow = InstalledAppFlow.from_client_secrets_file(
-        './secrets/credentials.json',
+    credentials_json = config.GOOGLE_CREDENTIALS
+
+    # JSON文字列をPythonの辞書オブジェクトに変換
+    credentials_data = json.loads(credentials_json)
+
+    flow = InstalledAppFlow.from_client_config(
+        credentials_data,
         scopes=[
             'https://www.googleapis.com/auth/calendar',
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
             'openid'
-        ],
-        state=state
+        ]
     )
+
     flow.redirect_uri = url_for('oauth2callback', _external=True, _scheme='https')
     authorization_response = request.url.replace("http://", "https://")
     flow.fetch_token(authorization_response=authorization_response)
