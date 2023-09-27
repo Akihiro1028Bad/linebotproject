@@ -18,6 +18,7 @@ const_operation_remind = "リマインド"
 const_begin_date_input_wait = "begin_date_input_wait"  # 終了日時入力待ち
 const_finish_date_input_wait = "finish_date_input_wait"  # 終了日時入力待ち
 const_title_input_wait = "title_input_wait"  # タイトル入力待ち
+const_temp_confirmation_wait = "temp_confirmation_wait"  # 一時的に入力内容確認待ち
 const_location_input_wait = "location_input_wait"  # 場所入力待ち
 const_detail_input_wait = "detail_input_wait"  # 詳細情報入力待ち
 const_confirmation_wait = "confirmation_wait"  # 入力内容確認待ち

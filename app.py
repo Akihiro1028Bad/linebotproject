@@ -1,5 +1,6 @@
 # 標準ライブラリ
 import logging
+from datetime import datetime, timedelta
 
 # 外部ライブラリ
 from flask import Flask, abort, request
@@ -88,11 +89,31 @@ def mark_message_as_read(user_id):
         logging.error(f"Error marking message as read: {response.text}")
 
 
+# ユーザーごとの最後のアクションタイムを追跡するディクショナリ
+user_last_action = {}
+
+
 @handler.add(PostbackEvent)
 def handle_postback(event):
     """
     LINEからのポストバックイベントを処理する関数。
     """
+    user_id = event.source.user_id  # ユーザーIDを取得
+
+    # 現在のタイムスタンプを取得
+    current_time = datetime.now()
+
+    # ユーザーの最後のアクションタイムを取得（存在しない場合はデフォルト値として現在時刻の10秒前を使用）
+    last_action_time = user_last_action.get(user_id, current_time - timedelta(seconds=10))
+
+    # 最後のアクションから2秒未満の場合はイベントを無視
+    if current_time - last_action_time < timedelta(seconds=5):
+        print("Please wait for a while before pressing again")  # ここで適切な応答をLINEに送信
+        return
+
+    # 最後のアクションタイムを更新
+    user_last_action[user_id] = current_time
+
     data = event.postback.data
     event_handler = EventHandler(event, line_bot_api)
 

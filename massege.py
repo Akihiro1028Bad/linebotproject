@@ -32,18 +32,7 @@ def return_quick_reply():
     return quick_reply
 
 
-def confirmation_message():
 
-    # クイックリプライのアイテム設定
-    confirm_items = [
-        QuickReplyButton(action=MessageAction(label="登録", text="登録")),
-        QuickReplyButton(action=MessageAction(label="キャンセル", text="キャンセル"))
-    ]
-
-    # クイックリプライの設定
-    quick_message = QuickReply(items=confirm_items)
-
-    return quick_message
 
 
 def first_quick_reply():
@@ -170,6 +159,43 @@ def send_detail():
     return message
 
 
+def send_schedule_temp_confirmation(temp_event):
+    text = (f"✨現在の入力内容✨\n"
+            "📌【予定名】\n" +
+            f"{temp_event.title}\n\n" +
+
+            "⏱【開始日時】\n" +
+            f"{temp_event.start_time.strftime('%Y年%m月%d日 %H時%M分')}\n\n" +
+
+            "⏳【終了日時】\n" +
+            f"{temp_event.end_time.strftime('%Y年%m月%d日 %H時%M分')}\n\n" +
+
+            "🔍この内容で登録しますか？\n\n" +
+            "予定の詳細（場所、メモ）の入力も可能です。\n" +
+            "↓の選択からお選びください。")
+
+    quick_reply = temp_confirmation_message()
+
+    message = TextSendMessage(text=text, quick_reply=quick_reply)
+
+    return message
+
+
+def temp_confirmation_message():
+
+    # クイックリプライのアイテム設定
+    confirm_items = [
+        QuickReplyButton(action=MessageAction(label="登録", text="登録")),
+        QuickReplyButton(action=MessageAction(label="詳細を続けて入力", text="詳細を続けて入力")),
+        QuickReplyButton(action=MessageAction(label="キャンセル", text="キャンセル"))
+    ]
+
+    # クイックリプライの設定
+    quick_message = QuickReply(items=confirm_items)
+
+    return quick_message
+
+
 def send_schedule_confirmation(temp_event):
     text = (f"✨現在の入力内容✨\n"
             "📌【予定名】\n" +
@@ -194,6 +220,20 @@ def send_schedule_confirmation(temp_event):
     message = TextSendMessage(text=text, quick_reply=quick_reply)
 
     return message
+
+
+def confirmation_message():
+
+    # クイックリプライのアイテム設定
+    confirm_items = [
+        QuickReplyButton(action=MessageAction(label="登録", text="登録")),
+        QuickReplyButton(action=MessageAction(label="キャンセル", text="キャンセル"))
+    ]
+
+    # クイックリプライの設定
+    quick_message = QuickReply(items=confirm_items)
+
+    return quick_message
 
 # ------------------------------------------------確認フロー-------------------------------------------------------------
 
@@ -270,7 +310,7 @@ def range_select_carousel():
                         ButtonComponent(
                             style="secondary",
                             color="#DDDDDD",  # グレー
-                            action=PostbackAction(label="n月n日の予定を確認", data="date=specific_date"),
+                            action=PostbackAction(label="任意の日程の予定を確認", data="date=specific_date"),
                             margin="sm"  # ボタン上部のマージンを追加
                         )
                     ]
