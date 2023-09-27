@@ -33,7 +33,7 @@ def generate_auth_url(token):
     """
     # OAuth2.0のスコープを定義
     scopes = [
-        'https://www.googleapis.com/auth/calendar',
+        'https://www.googleapis.com/auth/calendar.events',
         'https://www.googleapis.com/auth/userinfo.email',
         'https://www.googleapis.com/auth/userinfo.profile',
         'openid'
@@ -91,7 +91,7 @@ def fetch_google_authentication_result():
     flow = InstalledAppFlow.from_client_secrets_file(
         './secrets/credentials.json',
         scopes=[
-            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/calendar.events',
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
             'openid'
@@ -156,8 +156,11 @@ def handle_follow(event, line_bot_api: LineBotApi):
         # Google認証のURLを生成
         auth_url = generate_auth_url(token)
 
+        # 外部ブラウザを開く用のリンクの作成
+        auth_url_new = f"{auth_url}&openExternalBrowser=1"
+
         # 認証の案内メッセージをユーザーに送信
-        send_auth_instruction(event, line_bot_api, auth_url)
+        send_auth_instruction(event, line_bot_api, massege.message_auth_instruction(auth_url_new))
 
     except Exception as e:
         logging.error(f"Error occurred during the follow event handling: {e}")
@@ -175,13 +178,13 @@ def generate_and_save_token(user_id: str) -> str:
     return token
 
 
-def send_auth_instruction(event, line_bot_api: LineBotApi, auth_url: str):
+def send_auth_instruction(event, line_bot_api: LineBotApi, TemperMessage_Auth):
     """
     Google認証の案内メッセージをユーザーに送信する。
 
+    :param TemperMessage_Auth: 認証URLのテンプレートメッセージ（ボタン）
     :param event: Lineイベント
     :param line_bot_api: LineのAPI
-    :param auth_url: Google認証のURL
     :return: None
     """
     intro_message = (
@@ -195,7 +198,7 @@ def send_auth_instruction(event, line_bot_api: LineBotApi, auth_url: str):
     )
     line_bot_api.reply_message(
         event.reply_token,
-        [TextSendMessage(text=intro_message), TextSendMessage(text=auth_url)]
+        [TextSendMessage(text=intro_message), TemperMessage_Auth]
     )
 
 
@@ -248,7 +251,7 @@ def create_new_credentials(access_token, user, expiry_datetime):
         client_id=config.GOOGLE_CLIENT_ID,
         client_secret=config.GOOGLE_CLIENT_SECRET,
         scopes=[
-            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/calendar.events',
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
             'openid'
@@ -355,7 +358,7 @@ def create_credentials_from_user(user_data):
         token_uri="https://oauth2.googleapis.com/token",
         client_id=config.GOOGLE_CLIENT_ID,  # あなたのクライアントID
         client_secret=config.GOOGLE_CLIENT_SECRET,  # あなたのクライアントシークレット
-        scopes=['https://www.googleapis.com/auth/calendar',
+        scopes=['https://www.googleapis.com/auth/calendar.events',
                 'https://www.googleapis.com/auth/userinfo.email',
                 'https://www.googleapis.com/auth/userinfo.profile',
                 'openid'],

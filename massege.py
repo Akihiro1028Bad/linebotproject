@@ -111,6 +111,28 @@ def google_certification_success():
     return messages
 
 
+def message_auth_instruction(auth_url):
+    """
+    認証URLを含むボタンを作成します。
+    :param auth_url: 認証URL
+    """
+
+    # ボタンテンプレートメッセージを作成
+    buttons_template_message = TemplateSendMessage(
+        alt_text='認証リンク',
+        template=ButtonsTemplate(
+            text='Googleアカウントで認証してください',
+            actions=[
+                URIAction(
+                    label='認証ページへ',
+                    uri=auth_url
+                )
+            ]
+        )
+    )
+
+    return buttons_template_message
+
 # -------------------------------------追加フロー-----------------------------------------------------------------------
 
 def send_title():
