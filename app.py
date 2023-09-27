@@ -100,20 +100,6 @@ def handle_postback(event):
     """
     user_id = event.source.user_id  # ユーザーIDを取得
 
-    # 現在のタイムスタンプを取得
-    current_time = datetime.now()
-
-    # ユーザーの最後のアクションタイムを取得（存在しない場合はデフォルト値として現在時刻の10秒前を使用）
-    last_action_time = user_last_action.get(user_id, current_time - timedelta(seconds=10))
-
-    # 最後のアクションから2秒未満の場合はイベントを無視
-    if current_time - last_action_time < timedelta(seconds=5):
-        print("Please wait for a while before pressing again")  # ここで適切な応答をLINEに送信
-        return
-
-    # 最後のアクションタイムを更新
-    user_last_action[user_id] = current_time
-
     data = event.postback.data
     event_handler = EventHandler(event, line_bot_api)
 
@@ -127,22 +113,43 @@ def handle_postback(event):
         event_handler.finish_date_input()
 
     elif data == 'date=today':
+        postback_wait(user_id)
         EventConfirmation.show_today_event(event, line_bot_api)
 
     elif data == 'date=tomorrow':
+        postback_wait(user_id)
         EventConfirmation.show_tomorrow_event(event, line_bot_api)
 
     elif data == 'date=day_after_tomorrow':
+        postback_wait(user_id)
         EventConfirmation.show_day_after_tomorrow_event(event, line_bot_api)
 
     elif data == 'date=this_week':
+        postback_wait(user_id)
         EventConfirmation.show_week_events(event, line_bot_api)
 
     elif data == 'date=specific_date':
+        postback_wait(user_id)
         EventConfirmation.show_ask_date_picker(event, line_bot_api)
 
     elif data == 'selected_date':
         EventConfirmation.show_day_custom_event(event, line_bot_api)
+
+
+def postback_wait(user_id):
+    # 現在のタイムスタンプを取得
+    current_time = datetime.now()
+
+    # ユーザーの最後のアクションタイムを取得（存在しない場合はデフォルト値として現在時刻の10秒前を使用）
+    last_action_time = user_last_action.get(user_id, current_time - timedelta(seconds=10))
+
+    # 最後のアクションから5秒未満の場合はイベントを無視
+    if current_time - last_action_time < timedelta(seconds=5):
+        print("Please wait for a while before pressing again")  # ここで適切な応答をLINEに送信
+        return
+
+    # 最後のアクションタイムを更新
+    user_last_action[user_id] = current_time
 
 
 @handler.add(FollowEvent)
