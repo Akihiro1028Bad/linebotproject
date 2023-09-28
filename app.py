@@ -13,13 +13,14 @@ from linebot.models import (
 )
 import requests
 
-import config
 # ローカルモジュール
 import models
 import google_auth
 import EventConfirmation
 from models import db
 from EventHandler import EventHandler
+import scheduler  #
+import config
 
 
 DATABASE_URL = config.DATABASE_URL
