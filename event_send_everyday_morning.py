@@ -58,7 +58,7 @@ def one_day_events_message_send(user_id, all_events, start_day, day_type):
     if not all_events:
         # 予定のFlexメッセージを作成してプッシュ
         line_bot_api.push_message(user_id, [massege.not_event_morning_message(),
-                                            massege.everyday_message()])
+                                            massege.everyday_message_morning()])
 
     else:
         # 予定を開始時間でソート
