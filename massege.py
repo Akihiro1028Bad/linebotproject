@@ -323,7 +323,7 @@ def range_select_carousel():
     carousel = CarouselContainer(contents=[bubble_1, bubble_2])  # 2枚目, 3枚目を ... の部分に追加
 
     flex_message = FlexSendMessage(
-        alt_text="予定を確認",  # 代替テキスト
+        alt_text="予定の確認",  # 代替テキスト
         contents=carousel,
         quick_reply=return_quick_reply()
     )
@@ -412,7 +412,7 @@ def show_oneday_events_message(events, select_date, date_type):
         )
     )
 
-    return FlexSendMessage(alt_text="今日の予定", contents=bubble)
+    return FlexSendMessage(alt_text=f"一日の予定", contents=bubble)
 
 
 def create_day_bubble(events, target_date):
