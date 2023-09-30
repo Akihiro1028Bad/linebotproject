@@ -40,9 +40,11 @@ def generate_auth_url(token):
         'openid'
     ]
 
+    crendentials_json = config.GOOGLE_CREDENTIALS
+
     # OAuth2.0のフローを初期化
-    flow = InstalledAppFlow.from_client_secrets_file(
-        'secrets/credentials.json', scopes=scopes)
+    flow = InstalledAppFlow.from_client_config(
+        crendentials_json, scopes=scopes)
 
     # リダイレクト先のURLを設定 (開発環境に合わせてコメントアウトを切り替え)
     flow.redirect_uri = config.REDIRECT_URI
