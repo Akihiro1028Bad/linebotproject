@@ -204,8 +204,9 @@ class EventHandler:
                     quick_reply=quick_reply
                 )
                 self.line_bot_api.reply_message(self.event.reply_token,
-                                                [TextSendMessage(text="予定の「終了日」が予定の「開始日」より前になっています。\n" +
-                                                                      "正しい「終了日」を教えてください。\n"
+                                                [TextSendMessage(text="⚠️エラー⚠️\n 「終了日」が不正です!\n" 
+                                                                    "「終了日」が「開始日」よりも早い日付に設定されています。\n" 
+                                                                    "正しい「終了日」を入力してください。📅\n"
                                                                       f"選択された開始日；{formatted_datetime_start}\n"
                                                                       f"選択された終了日：{formatted_datetime_end}")
                                                     , template_message])
