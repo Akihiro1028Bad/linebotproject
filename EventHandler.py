@@ -190,19 +190,39 @@ class EventHandler:
 
         if (user_state.next_question == config.const_finish_date_input_wait
                 and user_state.operation == config.const_operation_add):
-            temp_event.end_time = selected_datetime_obj
-            db.session.add(temp_event)
 
-            formatted_datetime = selected_datetime_obj.strftime('%Y年%m月%d日 %H時%M分')
-            informed_message = TextSendMessage(text=f"終了日時を{formatted_datetime}に正しく設定しました👍")
+            if selected_datetime_obj < temp_event.start_time:
+                # 開始日が終了日よりもあとに設定されてしまった場合は、再度終了日の入力を指示する
+                formatted_datetime_end = selected_datetime_obj.strftime('%Y年%m月%d日 %H時%M分')
+                formatted_datetime_start = temp_event.start_time.strftime('%Y年%m月%d日 %H時%M分')
 
-            # 返信
-            self.line_bot_api.reply_message(self.event.reply_token,
-                                            [informed_message, massege.send_title()])
+                quick_reply = massege.return_quick_reply()
 
-            # ユーザの操作状態を更新
-            UserState.user_next_question_set(user_state, config.const_title_input_wait)
-            UserState.user_operation_set(user_state, config.const_operation_add)
+                template_message = TemplateSendMessage(
+                    alt_text='終了日時を選択してください',
+                    template=massege.end_date_picker_template(),
+                    quick_reply=quick_reply
+                )
+                self.line_bot_api.reply_message(self.event.reply_token,
+                                                [TextSendMessage(text="予定の「終了日」が予定の「開始日」より前になっています。\n" +
+                                                                      "正しい「終了日」を教えてください。\n"
+                                                                      f"選択された開始日；{formatted_datetime_start}\n"
+                                                                      f"選択された終了日：{formatted_datetime_end}")
+                                                    , template_message])
+            else:
+                temp_event.end_time = selected_datetime_obj
+                db.session.add(temp_event)
+
+                formatted_datetime = selected_datetime_obj.strftime('%Y年%m月%d日 %H時%M分')
+                informed_message = TextSendMessage(text=f"終了日時を{formatted_datetime}に正しく設定しました👍")
+
+                # 返信
+                self.line_bot_api.reply_message(self.event.reply_token,
+                                                [informed_message, massege.send_title()])
+
+                # ユーザの操作状態を更新
+                UserState.user_next_question_set(user_state, config.const_title_input_wait)
+                UserState.user_operation_set(user_state, config.const_operation_add)
 
         else:
             # 指定のステータスの場合以外にこのポストバックが行われた場合は、一時保存のデータを消去し初期の動作へ
