@@ -495,14 +495,14 @@ def everyday_message_morning():
 
     selected_message = random.choice(config.messages)
 
-    return TextSendMessage(text=selected_message)
+    return TextSendMessage(text="本日の予定をお知らせします。")
 
 
 def everyday_message_night():
 
     selected_message = random.choice(config.messages_night)
 
-    return TextSendMessage(text=selected_message)
+    return TextSendMessage(text="明日の予定をお知らせします。")
 
 
 def not_event_morning_message():
